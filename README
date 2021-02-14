@@ -1,0 +1,112 @@
+pr-tracker
+==========
+
+Run a web server that displays the path a Nixpkgs pull request will
+take through the various release channels.
+
+
+Installation
+------------
+
+Build and runtime dependencies:
+ - libsystemd
+ - OpenSSL
+
+Other build dependencies:
+ - Cargo
+ - rustc
+ - pkg-config
+
+Other runtime dependencies:
+ - Git
+
+In most cases, installation should be as simple as
+
+	make install
+
+
+Usage
+-----
+
+The program must be supplied with a local checkout of the monitored
+git repository, the remote name in the repository corresponding to
+upstream Nixpkgs, a User-Agent string to use when contacting the
+GitHub API, and a URL where users can download the program's source
+code.  Optionally, a "mount" path can be specified, which will be
+prefixed to all of the server's routes, so that it can be served at a
+non-root HTTP path.
+
+For example:
+
+	pr-tracker \
+		--path /var/lib/nixpkgs.git \
+		--remote nixpkgs \
+		--user-agent 'pr-tracker (alyssais)' \
+		--source-url https://example.com/pr-tracker.tar.gz \
+		--mount pr-tracker
+
+Additionally, a GitHub API token should be supplied on pr-tracker's
+standard input.
+
+pr-tracker expects the socket(s) for it to listen on to be set up for
+it by a service supervisor, using the systemd socket activation
+protocol.  It does not support binding its own sockets, but it can
+still be run outside of systemd using by implementing the same
+interface using utility programs, such as in this example that makes
+use of the s6-networking[1] and execline[2] packages (example is
+written in POSIX shell, not execline):
+
+	s6-tcpserver 0.0.0.0 8000 \
+		fdmove 3 0 \
+		env LISTEN_FDS=1 \
+		getpid LISTEN_PID
+		redirfd -r 0 /var/lib/pr-tracker/token \
+		pr-tracker [...]
+
+Further information on available command line arguments can be
+obtained with
+
+	pr-tracker --help
+
+[1]: https://skarnet.org/software/s6-networking/
+[2]: https://skarnet.org/software/execline/
+
+Development
+-----------
+
+The upstream git repository for pr-tracker is available at
+<https://git.qyliss.net/pr-tracker/>.
+
+Bugs and patches can be sent to the author,
+Alyssa Ross <hi@alyssa.is>.
+
+For information about how to use git to send a patch email, see
+<https://git-send-email.io/>.
+
+
+License
+-------
+
+Copyright 2021 Alyssa Ross <hi@alyssa.is>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation; either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public
+License along with this program; if not, see
+<https://www.gnu.org/licenses>.
+
+Additional permission under GNU AGPL version 3 section 7
+
+If you modify this Program, or any covered work, by linking or
+combining it with OpenSSL (or a modified version of that library),
+containing parts covered by the terms of the OpenSSL License, or the
+Original SSLeay License, the licensors of this Program grant you
+additional permission to convey the resulting work.

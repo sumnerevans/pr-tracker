@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: 2021 Alyssa Ross <hi@alyssa.is>
+
+[package]
+name = "pr-tracker"
+version = "0.1.0"
+authors = ["Alyssa Ross <hi@alyssa.is>"]
+edition = "2018"
+license = "AGPL-3.0-or-later WITH GPL-3.0-linking-exception"
+
+[build-dependencies]
+pkg-config = "0.3.19"
+
+[dependencies]
+http-types = "*"
+once_cell = "1.5"
+regex = "1.4"
+surf = "2.1"
+serde_json = "1.0"
+graphql_client = "0.8.0"
+serde = "1.0"
+askama = "0.10.5"
+structopt = "0.3.21"
+futures-util = "0.3.12"
+
+[dependencies.async-std]
+version = "*" # Use whatever tide uses.
+features = ["attributes"]
+
+[dependencies.tide]
+version = "0.16.0"
+default-features = false
+features = ["h1-server", "logger"]
+
+[patch.crates-io]
+# https://github.com/djc/askama/pull/447
+askama = { git = "https://github.com/djc/askama", branch = "main" }

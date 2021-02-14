@@ -1,0 +1,203 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later WITH GPL-3.0-linking-exception -->
+<!-- SPDX-FileCopyrightText: 2021 Alyssa Ross <hi@alyssa.is> -->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    {% match pr_number %}
+    {% when Some with (pr_number) %}
+    <title>Nixpkgs PR #{{ pr_number }} progress</title>
+    {% else %}
+    <title>Nixpkgs PR progress tracker</title>
+    {% endmatch %}
+
+    <meta charset="utf-8">
+
+    <style>
+      :root {
+        line-height: 1;
+        font-family: sans-serif;
+        text-align: center;
+      }
+
+      body > header {
+        margin-bottom: 2em;
+      }
+
+      #pr {
+        width: 6ch;
+        box-sizing: content-box;
+        text-align: center;
+      }
+
+      body > section {
+        background: #c4b0b0;
+        padding: 0 1em;
+        margin: 1em auto;
+        display: flex;
+        max-width: 50ch;
+      }
+
+      body > main {
+        display: flex;
+        justify-content: center;
+      }
+
+      body > main > ol {
+        text-align: left;
+        margin: 0;
+      }
+
+      ol, ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      ul > li {
+        margin-left: 2em;
+        position: relative;
+      }
+
+      ul > li:last-child {
+        margin-left: 0;
+        position: static;
+      }
+
+      li {
+        margin: 1em 0;
+        line-height: 2;
+      }
+
+      span {
+        color: transparent;
+        position: relative;
+        width: 2em;
+        height: 2em;
+        display: inline-block;
+        margin-right: 0.5em;
+        z-index: 1;
+      }
+
+      span::after {
+        content: "";
+        border-radius: 50%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: block;
+        border: .3em solid #7A877D;
+        color: white;
+        text-align: center;
+        line-height: 1.5em;
+      }
+
+      span.state-pending::after {
+        background: #C2C9C2;
+      }
+
+      span.state-unknown::after {
+        background: #C4A500;
+        content: "?";
+      }
+
+      span.state-accepted::after {
+        background: #00C42D;
+        content: "✔";
+      }
+
+      span.state-rejected::after {
+        background: #c40000;
+        content: "❌︎";
+      }
+
+      ul span::before {
+        content: "";
+        position: absolute;
+        top: 42.5%;
+        bottom: 42.5%;
+        right: .5em;
+        left: -1em;
+        display: block;
+        background: #7A877D;
+      }
+
+      ul > li:last-child > span::before {
+        content: none;
+      }
+
+      ol {
+        position: relative;
+      }
+
+      ol::before, ul::before {
+        background: #7A877D;
+        content: "";
+        display: block;
+        left: .85em;
+        top: 0.5em;
+        bottom: 1em;
+        width: .3em;
+        position: absolute;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Nixpkgs Pull Request Tracker</h1>
+
+      <form>
+        <label for="pr">PR number: </label>
+        <input id="pr" name="pr" type="text" pattern="[1-9][0-9]*"
+               value="{%- match pr_number -%}
+                      {%- when Some with (pr_number) -%}
+                      {{- pr_number -}}
+                      {%- else -%}
+                      {%- endmatch -%}">
+        <button type="submit">Track</button>
+      </form>
+    </header>
+
+    {% match error %}
+    {% when Some with (error) %}
+    <section>
+      <p>{{ error }}</p>
+    </section>
+    {% else %}
+    {% endmatch %}
+
+    {% match pr_number %}
+    {% when Some with (pr_number) %}
+    <main>
+      <ol>
+        <li>
+          {% if closed %}
+          <span class="state-rejected">❌</span>
+          {% else %}
+          <span class="state-accepted">✅</span>
+          {% endif %}
+          PR <a href="https://github.com/NixOS/nixpkgs/pull/{{ pr_number }}">#{{ pr_number }}</a>
+          {% if closed %}
+          closed
+          {% endif %}
+        </li>
+
+        {% match tree %}
+        {% when Some with (tree) %}
+        {{ tree|safe }}
+        {% else %}
+        {% endmatch %}
+      </ol>
+    </main>
+    {% else %}
+    {% endmatch %}
+    
+    <footer>
+      <p>By <a href="https://alyssa.is/">Alyssa Ross</a></p>
+
+      <p><a href="{{ source_url }}">Source code</a></p>
+    </footer>
+  </body>
+</html>

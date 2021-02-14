@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: 2021 Alyssa Ross <hi@alyssa.is>
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = spaces
+insert_final_newline = true
+trim_trailing_whilespace = true
+
+[README]
+indent_style = tabs
+
+[*.rs]
+indent_size = 4
+indent_style = spaces

@@ -1,0 +1,23 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later WITH GPL-3.0-linking-exception -->
+<!-- SPDX-FileCopyrightText: 2021 Alyssa Ross <hi@alyssa.is> -->
+
+<li>
+  {% match accepted %}
+  {% when Some with (true) %}
+  <span class="state-accepted">✅</span>
+  {% when Some with (false) %}
+  <span class="state-pending">⚪</span>
+  {% when None %}
+  <span class="state-unknown">❓</span>
+  {% endmatch %}
+
+  {{ branch_name }}
+
+  {% if !children.is_empty() %}
+  <ul>
+    {% for child in children %}
+    {{ child|safe }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+</li>
