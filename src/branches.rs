@@ -8,14 +8,14 @@ use once_cell::sync::Lazy;
 use regex::{Regex, RegexSet};
 
 const NEXT_BRANCH_TABLE: [(&str, &str); 8] = [
-    (r"\Astaging(-[\d.]+)?\z", "staging-next$1"),
+    (r"\Astaging\z", "staging-next"),
     (r"\Astaging-next\z", "master"),
     (r"\Amaster\z", "nixpkgs-unstable"),
     (r"\Amaster\z", "nixos-unstable-small"),
     (r"\Anixos-(.*)-small\z", "nixos-$1"),
     (r"\Arelease-([\d.]+)\z", "nixpkgs-$1-darwin"),
     (r"\Arelease-([\d.]+)\z", "nixos-$1-small"),
-    (r"\Astaging-next-([\d.]*)\z", "release-$1"),
+    (r"\Astaging-([\d.]*)\z", "release-$1"),
 ];
 
 static BRANCH_NEXTS: Lazy<BTreeMap<&str, Vec<&str>>> = Lazy::new(|| {
