@@ -5,9 +5,9 @@
 <html lang="en">
   <head>
     {% match pr_number %}
-    {% when Some with (pr_number) %}
+    {%- when Some with (pr_number) -%}
     <title>Nixpkgs PR #{{ pr_number }} progress</title>
-    {% else %}
+    {%- else -%}
     <title>Nixpkgs PR progress tracker</title>
     {% endmatch %}
 
@@ -169,29 +169,29 @@
     {% endmatch %}
 
     {% match pr_number %}
-    {% when Some with (pr_number) %}
+    {%- when Some with (pr_number) -%}
     <main>
       <ol>
         <li>
-          {% if closed %}
+          {%- if closed -%}
           <span class="state-rejected">❌</span>
-          {% else %}
+          {%- else -%}
           <span class="state-accepted">✅</span>
-          {% endif %}
+          {%- endif -%}
           PR <a href="https://github.com/NixOS/nixpkgs/pull/{{ pr_number }}">#{{ pr_number }}</a>
-          {% if closed %}
+          {%- if closed -%}
           closed
-          {% endif %}
+          {%- endif -%}
         </li>
 
         {% match tree %}
-        {% when Some with (tree) %}
-        {{ tree|safe }}
-        {% else %}
-        {% endmatch %}
+        {%- when Some with (tree) -%}
+        {{- tree|safe -}}
+        {%- else -%}
+        {%- endmatch -%}
       </ol>
     </main>
-    {% else %}
+    {%- else -%}
     {% endmatch %}
     
     <footer>
