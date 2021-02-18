@@ -10,6 +10,12 @@ use serde::Deserialize;
 use surf::http::headers::HeaderValue;
 use surf::StatusCode;
 
+// ISO 8601 dates can be compared chronologically simply by comparing
+// them lexicographically, so representing them as strings and
+// comparing them as strings works just fine.  (As long as GitHub
+// never starts returning dates in non-UTC timezones!)
+type DateTime = String;
+
 type GitObjectID = String;
 
 #[derive(Debug)]
@@ -36,6 +42,24 @@ impl Display for Error {
 
 impl std::error::Error for Error {}
 
+// Prior to some time in October 2013, GitHub changes from showing the
+// GraphQL API us a fake merge commit that isn't actually reachable in
+// the branch, to showing a null merge commit.
+//
+// The earliest merge I could find with the null behaviour was
+// nixpkgs#1050, which was merged at the time below.
+// The most recent merge I could find before that, where GitHub
+// returns a fake merge commit, is nixpkgs#1049, which was merged at
+// 2013-10-06T14:05:21Z.  So the behaviour change happens somewhere in
+// the two weeks between those dates.  By looking at other GitHub
+// repositories (or even just more closely at Nixpkgs), we could
+// refine this value, but since we treat fake merge commits as null
+// merge commits, there's not much point.
+//
+// The change from null merge commits to real merge commit data
+// happens in March 2016 (we don't need to check for that by date).
+const FIRST_KNOWN_NULL_MERGE_COMMIT: &str = "2013-10-20T15:50:06Z";
+
 #[derive(GraphQLQuery)]
 #[graphql(
     schema_path = "vendor/github_schema.graphql",
@@ -43,6 +67,18 @@ impl std::error::Error for Error {}
     response_derives = "Debug"
 )]
 struct MergeCommitQuery;
+
+type PullRequest = merge_commit_query::MergeCommitQueryRepositoryPullRequest;
+
+impl PullRequest {
+    fn merge_commit_oid(&self) -> Option<&str> {
+        if self.merged_at.as_ref()?.as_str() < FIRST_KNOWN_NULL_MERGE_COMMIT {
+            return None;
+        }
+
+        Some(&self.merge_commit.as_ref()?.oid)
+    }
+}
 
 #[derive(Debug, Deserialize)]
 struct GitHubGraphQLResponse<D> {
@@ -123,17 +159,18 @@ impl<'a> GitHub<'a> {
             .and_then(|repo| repo.pull_request)
             .ok_or(Error::NotFound)?;
 
+        let status = if pr.merged {
+            let merge_commit_oid = pr.merge_commit_oid().map(Into::into);
+            PullRequestStatus::Merged { merge_commit_oid }
+        } else if pr.closed {
+            PullRequestStatus::Closed
+        } else {
+            PullRequestStatus::Open
+        };
+
         Ok(MergeInfo {
             branch: pr.base_ref_name,
-            status: if pr.merged {
-                PullRequestStatus::Merged {
-                    merge_commit_oid: pr.merge_commit.map(|commit| commit.oid),
-                }
-            } else if pr.closed {
-                PullRequestStatus::Closed
-            } else {
-                PullRequestStatus::Open
-            },
+            status,
         })
     }
 }
