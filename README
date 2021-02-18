@@ -2,7 +2,8 @@ pr-tracker
 ==========
 
 Run a web server that displays the path a Nixpkgs pull request will
-take through the various release channels.
+take through the various release channels.  An instance is available
+at the time of writing at <https://nixpk.gs/pr-tracker.html>.
 
 
 Installation
