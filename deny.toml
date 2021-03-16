@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: 2021 Alyssa Ross <hi@alyssa.is>
+
+# The purpose of this file is to check that all dependencies are
+# available under licenses that are compatible with the AGPLv3 and
+# later versions.  Additionally, if we added a dependency on a GPL or
+# AGPL library, we'd need to make sure that, like us, the library
+# offered an exception for linking with OpenSSL.
+
+[licenses]
+unlicensed = "deny"
+copyleft = "allow"
+allow = [
+  "Apache-2.0",
+  "BSD-3-Clause",
+  "MIT",
+]
