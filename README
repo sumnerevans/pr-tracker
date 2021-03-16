@@ -60,7 +60,7 @@ written in POSIX shell, not execline):
 	s6-tcpserver 0.0.0.0 8000 \
 		fdmove 3 0 \
 		env LISTEN_FDS=1 \
-		getpid LISTEN_PID
+		getpid LISTEN_PID \
 		redirfd -r 0 /var/lib/pr-tracker/token \
 		pr-tracker [...]
 
