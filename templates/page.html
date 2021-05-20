@@ -9,7 +9,7 @@
     {%- when Some with (pr_number) -%}
     {% match pr_title %}
     {%- when Some with (pr_title) -%}
-    <title>Nixpkgs PR #{{ pr_number }} ("{{ pr_title }}") progress</title>
+    <title>Nixpkgs PR #{{ pr_number }} ({{ pr_title }}) progress</title>
     {%- else -%}
     <title>Nixpkgs PR #{{ pr_number }} progress</title>
     {%- endmatch -%}
@@ -72,6 +72,15 @@
       li {
         margin: 1em 0;
         line-height: 2;
+      }
+
+      li > div {
+        display: flex;
+        flex-direction: row;
+      }
+
+      li > div p {
+        margin: 0;
       }
 
       span {
@@ -179,20 +188,32 @@
     <main>
       <ol>
         <li>
-          {%- if closed -%}
-          <span class="state-rejected">❌</span>
-          {%- else -%}
-          <span class="state-accepted">✅</span>
-          {%- endif -%}
-          PR <a href="https://github.com/NixOS/nixpkgs/pull/{{ pr_number }}">#{{ pr_number }}</a>
-          {% match pr_title %}
-          {%- when Some with (pr_title) -%}
-          ("{{ pr_title }}")
-          {%- else -%}
-          {%- endmatch -%}
-          {% if closed -%}
-          (closed)
-          {%- endif -%}
+          <div>
+            {%- if closed -%}
+            <span class="state-rejected">❌</span>
+            {%- else -%}
+            <span class="state-accepted">✅</span>
+            {%- endif -%}
+            <div>
+              <p>
+                PR <a href="https://github.com/NixOS/nixpkgs/pull/{{ pr_number }}">#{{ pr_number }}</a>
+                {% if closed -%}
+                (closed)
+                {%- endif -%}
+              </p>
+
+              <table>
+                {% match pr_title %}
+                {%- when Some with (pr_title) -%}
+                <tr>
+                  <td><b>Title:</b></td>
+                  <td>{{ pr_title }}</td>
+                </tr>
+                {%- else -%}
+                {%- endmatch -%}
+              </table>
+            </div>
+          </div>
         </li>
 
         {% match tree %}
