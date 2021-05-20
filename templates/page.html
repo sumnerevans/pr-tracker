@@ -1,12 +1,18 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later WITH GPL-3.0-linking-exception -->
 <!-- SPDX-FileCopyrightText: 2021 Alyssa Ross <hi@alyssa.is> -->
+<!-- SPDX-FileCopyrightText: 2021 Sumner Evans <me@sumnerevans.com> -->
 
 <!doctype html>
 <html lang="en">
   <head>
     {% match pr_number %}
     {%- when Some with (pr_number) -%}
+    {% match pr_title %}
+    {%- when Some with (pr_title) -%}
+    <title>Nixpkgs PR #{{ pr_number }} ("{{ pr_title }}") progress</title>
+    {%- else -%}
     <title>Nixpkgs PR #{{ pr_number }} progress</title>
+    {%- endmatch -%}
     {%- else -%}
     <title>Nixpkgs PR progress tracker</title>
     {% endmatch %}
@@ -179,8 +185,13 @@
           <span class="state-accepted">✅</span>
           {%- endif -%}
           PR <a href="https://github.com/NixOS/nixpkgs/pull/{{ pr_number }}">#{{ pr_number }}</a>
-          {%- if closed -%}
-          closed
+          {% match pr_title %}
+          {%- when Some with (pr_title) -%}
+          ("{{ pr_title }}")
+          {%- else -%}
+          {%- endmatch -%}
+          {% if closed -%}
+          (closed)
           {%- endif -%}
         </li>
 

@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later WITH GPL-3.0-linking-exception
 # SPDX-FileCopyrightText: 2021 Alyssa Ross <hi@alyssa.is>
+# SPDX-FileCopyrightText: 2021 Sumner Evans <me@sumnerevans.com>
 
-query MergeCommitQuery($owner: String!, $repo: String!, $number: Int!) {
+query PrInfoQuery($owner: String!, $repo: String!, $number: Int!) {
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $number) {
+      title
       baseRefName
       mergeCommit {
         oid

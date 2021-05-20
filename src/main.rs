@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later WITH GPL-3.0-linking-exception
 // SPDX-FileCopyrightText: 2021 Alyssa Ross <hi@alyssa.is>
+// SPDX-FileCopyrightText: 2021 Sumner Evans <me@sumnerevans.com>
 
 mod branches;
 mod github;
@@ -70,6 +71,7 @@ static GITHUB_TOKEN: Lazy<OsString> = Lazy::new(|| {
 struct PageTemplate {
     error: Option<String>,
     pr_number: Option<String>,
+    pr_title: Option<String>,
     closed: bool,
     tree: Option<Tree>,
     source_url: String,
@@ -97,7 +99,7 @@ async fn track_pr(pr_number: Option<String>, status: &mut u16, page: &mut PageTe
 
     let github = GitHub::new(&GITHUB_TOKEN, &CONFIG.user_agent);
 
-    let merge_info = match github.merge_info_for_nixpkgs_pr(pr_number_i64).await {
+    let pr_info = match github.pr_info_for_nixpkgs_pr(pr_number_i64).await {
         Err(github::Error::NotFound) => {
             *status = 404;
             page.error = Some(format!("No such nixpkgs PR #{}.", pr_number_i64));
@@ -114,18 +116,19 @@ async fn track_pr(pr_number: Option<String>, status: &mut u16, page: &mut PageTe
     };
 
     page.pr_number = Some(pr_number);
+    page.pr_title = Some(pr_info.title);
 
-    if matches!(merge_info.status, PullRequestStatus::Closed) {
+    if matches!(pr_info.status, PullRequestStatus::Closed) {
         page.closed = true;
         return;
     }
 
     let nixpkgs = Nixpkgs::new(&CONFIG.path, &CONFIG.remote);
-    let tree = Tree::make(merge_info.branch.to_string(), &merge_info.status, &nixpkgs).await;
+    let tree = Tree::make(pr_info.branch.to_string(), &pr_info.status, &nixpkgs).await;
 
     if let github::PullRequestStatus::Merged {
         merge_commit_oid, ..
-    } = merge_info.status
+    } = pr_info.status
     {
         if merge_commit_oid.is_none() {
             page.error = Some("For older PRs, GitHub doesn't tell us the merge commit, so we're unable to track this PR past being merged.".to_string());

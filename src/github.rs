@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later WITH GPL-3.0-linking-exception
 // SPDX-FileCopyrightText: 2021 Alyssa Ross <hi@alyssa.is>
+// SPDX-FileCopyrightText: 2021 Sumner Evans <me@sumnerevans.com>
 
 use std::ffi::OsStr;
 use std::fmt::{self, Display, Formatter};
@@ -63,12 +64,12 @@ const FIRST_KNOWN_NULL_MERGE_COMMIT: &str = "2013-10-20T15:50:06Z";
 #[derive(GraphQLQuery)]
 #[graphql(
     schema_path = "vendor/github_schema.graphql",
-    query_path = "src/merge_commit.graphql",
+    query_path = "src/pr_info.graphql",
     response_derives = "Debug"
 )]
-struct MergeCommitQuery;
+struct PrInfoQuery;
 
-type PullRequest = merge_commit_query::MergeCommitQueryRepositoryPullRequest;
+type PullRequest = pr_info_query::PrInfoQueryRepositoryPullRequest;
 
 impl PullRequest {
     fn merge_commit_oid(&self) -> Option<&str> {
@@ -97,8 +98,9 @@ pub enum PullRequestStatus {
 }
 
 #[derive(Debug)]
-pub struct MergeInfo {
+pub struct PrInfo {
     pub branch: String,
+    pub title: String,
     pub status: PullRequestStatus,
 }
 
@@ -118,8 +120,8 @@ impl<'a> GitHub<'a> {
         Ok(HeaderValue::from_bytes(value)?)
     }
 
-    pub async fn merge_info_for_nixpkgs_pr(&self, pr: i64) -> Result<MergeInfo, Error> {
-        let query = MergeCommitQuery::build_query(merge_commit_query::Variables {
+    pub async fn pr_info_for_nixpkgs_pr(&self, pr: i64) -> Result<PrInfo, Error> {
+        let query = PrInfoQuery::build_query(pr_info_query::Variables {
             owner: "NixOS".to_string(),
             repo: "nixpkgs".to_string(),
             number: pr,
@@ -148,7 +150,7 @@ impl<'a> GitHub<'a> {
             return Err(Error::Response(status));
         }
 
-        let data: GitHubGraphQLResponse<merge_commit_query::ResponseData> = dbg!(response)
+        let data: GitHubGraphQLResponse<pr_info_query::ResponseData> = dbg!(response)
             .body_json()
             .await
             .map_err(Error::Deserialization)?;
@@ -168,8 +170,9 @@ impl<'a> GitHub<'a> {
             PullRequestStatus::Open
         };
 
-        Ok(MergeInfo {
+        Ok(PrInfo {
             branch: pr.base_ref_name,
+            title: pr.title,
             status,
         })
     }
