@@ -51,18 +51,10 @@ standard input.
 
 pr-tracker expects the socket(s) for it to listen on to be set up for
 it by a service supervisor, using the systemd socket activation
-protocol.  It does not support binding its own sockets, but it can
-still be run outside of systemd using by implementing the same
-interface using utility programs, such as in this example that makes
-use of the s6-networking[1] and execline[2] packages (example is
-written in POSIX shell, not execline):
+protocol.  It does not support binding its own sockets.  To run
+outside of a systemd unit, you can use systemd-socket-activate:
 
-	s6-tcpserver 0.0.0.0 8000 \
-		fdmove 3 0 \
-		env LISTEN_FDS=1 \
-		getpid LISTEN_PID \
-		redirfd -r 0 /var/lib/pr-tracker/token \
-		pr-tracker [...]
+	systemd-socket-activate -l 0.0.0.0:8000 pr-tracker [...]
 
 Further information on available command line arguments can be
 obtained with
