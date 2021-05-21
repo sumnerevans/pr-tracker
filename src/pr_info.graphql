@@ -6,6 +6,10 @@ query PrInfoQuery($owner: String!, $repo: String!, $number: Int!) {
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $number) {
       title
+      author {
+        __typename
+        login
+      }
       baseRefName
       mergeCommit {
         oid

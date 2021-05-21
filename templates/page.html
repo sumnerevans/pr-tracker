@@ -83,6 +83,10 @@
         margin: 0;
       }
 
+      li > div table {
+        line-height: 1.2em;
+      }
+
       span {
         color: transparent;
         position: relative;
@@ -208,6 +212,16 @@
                 <tr>
                   <td><b>Title:</b></td>
                   <td>{{ pr_title }}</td>
+                </tr>
+                {%- else -%}
+                {%- endmatch -%}
+                {% match pr_author %}
+                {%- when Some with (pr_author) -%}
+                <tr>
+                  <td><b>Author:</b></td>
+                  <td>
+                    <a href="https://github.com/{{ pr_author }}">{{ pr_author }}</a>
+                  </td>
                 </tr>
                 {%- else -%}
                 {%- endmatch -%}

@@ -72,6 +72,7 @@ struct PageTemplate {
     error: Option<String>,
     pr_number: Option<String>,
     pr_title: Option<String>,
+    pr_author: Option<String>,
     closed: bool,
     tree: Option<Tree>,
     source_url: String,
@@ -117,6 +118,7 @@ async fn track_pr(pr_number: Option<String>, status: &mut u16, page: &mut PageTe
 
     page.pr_number = Some(pr_number);
     page.pr_title = Some(pr_info.title);
+    page.pr_author = Some(pr_info.author);
 
     if matches!(pr_info.status, PullRequestStatus::Closed) {
         page.closed = true;

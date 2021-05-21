@@ -101,6 +101,7 @@ pub enum PullRequestStatus {
 pub struct PrInfo {
     pub branch: String,
     pub title: String,
+    pub author: String,
     pub status: PullRequestStatus,
 }
 
@@ -170,9 +171,15 @@ impl<'a> GitHub<'a> {
             PullRequestStatus::Open
         };
 
+        let author = match pr.author {
+            Some(a) => a.login,
+            None => String::new(),
+        };
+
         Ok(PrInfo {
             branch: pr.base_ref_name,
             title: pr.title,
+            author,
             status,
         })
     }
