@@ -1,0 +1,18 @@
+image: nixos/unstable
+secrets:
+  # SSH Deploy Key
+  - f219888a-80af-4275-a777-89e8c7d277f0
+environment:
+  PROJECT_NAME: pr-tracker
+triggers:
+  - action: email
+    condition: failure
+    to: Sumner Evans <me@sumnerevans.com>
+artifacts:
+  - pr-tracker/target/debug/pr-tracker
+tasks:
+  - build: |
+      cd ${PROJECT_NAME}
+      nix-shell \
+        --arg forCi true \
+        --command "cargo build"
