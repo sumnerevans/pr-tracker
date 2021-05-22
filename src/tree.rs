@@ -13,9 +13,9 @@ use crate::nixpkgs::Nixpkgs;
 #[derive(Debug, Template)]
 #[template(path = "tree.html")]
 pub struct Tree {
-    branch_name: String,
-    accepted: Option<bool>,
-    children: Vec<Tree>,
+    pub branch_name: String,
+    pub accepted: Option<bool>,
+    pub children: Vec<Tree>,
 }
 
 impl Tree {

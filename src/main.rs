@@ -5,6 +5,7 @@
 mod branches;
 mod github;
 mod nixpkgs;
+mod ogmeta;
 mod systemd;
 mod tree;
 
@@ -30,6 +31,7 @@ use github::{GitHub, PullRequestStatus};
 use nixpkgs::Nixpkgs;
 use systemd::{is_socket_inet, is_socket_unix, listen_fds};
 use tree::Tree;
+use ogmeta::Ogmeta;
 
 #[derive(StructOpt, Debug)]
 struct Config {
@@ -75,6 +77,7 @@ struct PageTemplate {
     pr_author: Option<String>,
     closed: bool,
     tree: Option<Tree>,
+    ogmeta: Option<Ogmeta>,
     source_url: String,
 }
 
@@ -127,6 +130,7 @@ async fn track_pr(pr_number: Option<String>, status: &mut u16, page: &mut PageTe
 
     let nixpkgs = Nixpkgs::new(&CONFIG.path, &CONFIG.remote);
     let tree = Tree::make(pr_info.branch.to_string(), &pr_info.status, &nixpkgs).await;
+    let ogmeta = Ogmeta::from_tree(&tree);
 
     if let github::PullRequestStatus::Merged {
         merge_commit_oid, ..
@@ -138,6 +142,7 @@ async fn track_pr(pr_number: Option<String>, status: &mut u16, page: &mut PageTe
     }
 
     page.tree = Some(tree);
+    page.ogmeta = Some(ogmeta);
 }
 
 async fn handle_request<S>(request: Request<S>) -> http_types::Result<Response> {

@@ -7,15 +7,31 @@
   <head>
     {% match pr_number %}
     {%- when Some with (pr_number) -%}
-    {% match pr_title %}
-    {%- when Some with (pr_title) -%}
-    <title>Nixpkgs PR #{{ pr_number }} ({{ pr_title }}) progress</title>
-    {%- else -%}
-    <title>Nixpkgs PR #{{ pr_number }} progress</title>
-    {%- endmatch -%}
+      {% match pr_title %}
+        {%- when Some with (pr_title) -%}
+          <title>Nixpkgs PR #{{ pr_number }} ({{ pr_title }}) progress</title>
+          <meta property="og:title" content="Nixpkgs PR #{{ pr_number }} ({{ pr_title }}) progress" />
+        {%- else -%}
+          <title>Nixpkgs PR #{{ pr_number }} progress</title>
+          <meta property="og:title" content="Nixpkgs PR #{{ pr_number }} progress" />
+      {%- endmatch -%}
     {%- else -%}
     <title>Nixpkgs PR progress tracker</title>
+    <meta property="og:title" content="Nixpkgs PR progress tracker" />
     {% endmatch %}
+
+    <meta name="description" content="Track the progress of PRs to Nixpkgs.">
+
+    <meta property="og:description" content="
+    {%- if closed %}❌{%- else %}✅{%- endif %} {% match pr_number -%}
+    {%- when Some with (pr_number) -%}
+      PR #{{ pr_number }} {% match ogmeta -%}
+      {%- when Some with (ogmeta) -%}
+         {{ ogmeta|safe }}
+      {%- else -%}
+      {%- endmatch -%}
+    {%- else -%}
+    {%- endmatch -%}" />
 
     <meta charset="utf-8">
 
