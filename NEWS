@@ -1,0 +1,15 @@
+SPDX-License-Identifier: CC0-1.0
+SPDX-FileCopyrightText: 2021 Alyssa Ross <hi@alyssa.is>
+
+pr-tracker 1.1.0 (2021-06-06)
+=============================
+
+• Add title to PR information display
+• Add support for Nixpkgs 21.05's staging-next-21.05 branch (and
+  assume future releases will be the same)
+• Update dependencies
+
+pr-tracker 1.0.0 (2021-02-27)
+=============================
+
+Initial release
